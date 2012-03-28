@@ -147,8 +147,13 @@ class Paginator(object):
         if self.resource_uri is None:
             return None
 
-        request_params = dict([k, v.encode('utf-8')] for k, v in self.request_data.items())
-        request_params.update({'limit': limit, 'offset': offset})
+        request_params = []
+        for key in dict(self.request_data).keys():
+            if key not in ('limit', 'offset'):
+                for value in dict(self.request_data)[key]:
+                    request_params.append((key, value.encode('utf-8')))
+        request_params.extend([('limit', limit), ('offset', offset)])
+
         return '%s?%s' % (
             self.resource_uri,
             urlencode(request_params)
